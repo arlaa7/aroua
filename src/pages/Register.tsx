@@ -20,7 +20,7 @@ const Register: React.FC = () => {
   const { register, isAuthenticated, isLoading, error } = useAuth()
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/\" replace />
   }
 
   const validateForm = () => {
