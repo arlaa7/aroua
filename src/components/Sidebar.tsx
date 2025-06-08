@@ -9,25 +9,48 @@ import {
   ShoppingCart,
   BarChart3,
   Settings,
+  Users,
+  User,
   X
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Categories', href: '/categories', icon: FolderOpen },
-  { name: 'Suppliers', href: '/suppliers', icon: Truck },
-  { name: 'Orders', href: '/orders', icon: ShoppingCart },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings },
-]
-
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { user } = useAuth()
+
+  const getNavigationItems = () => {
+    const baseItems = [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['Admin', 'Assistant', 'Cashier'] },
+      { name: 'Products', href: '/products', icon: Package, roles: ['Admin', 'Assistant'] },
+      { name: 'Categories', href: '/categories', icon: FolderOpen, roles: ['Admin', 'Assistant'] },
+      { name: 'Suppliers', href: '/suppliers', icon: Truck, roles: ['Admin', 'Assistant'] },
+      { name: 'Orders', href: '/orders', icon: ShoppingCart, roles: ['Admin', 'Assistant', 'Cashier'] },
+      { name: 'Reports', href: '/reports', icon: BarChart3, roles: ['Admin', 'Assistant'] },
+    ]
+
+    const adminItems = [
+      { name: 'User Management', href: '/users', icon: Users, roles: ['Admin'] },
+      { name: 'Settings', href: '/settings', icon: Settings, roles: ['Admin'] },
+    ]
+
+    const userItems = [
+      { name: 'Profile', href: '/profile', icon: User, roles: ['Admin', 'Assistant', 'Cashier'] },
+    ]
+
+    const allItems = [...baseItems, ...adminItems, ...userItems]
+    
+    return allItems.filter(item => 
+      user && item.roles.includes(user.role)
+    )
+  }
+
+  const navigation = getNavigationItems()
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -44,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center space-x-3"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -52,6 +75,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </span>
               </motion.div>
             </div>
+
+            {/* User Info */}
+            {user && (
+              <div className="px-6 pb-4">
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {user.role}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Navigation */}
             <nav className="flex-1 px-4 pb-4 space-y-1">
@@ -62,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   className={({ isActive }) =>
                     `group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                       isActive
-                        ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 border-r-2 border-primary-500'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 hover:text-gray-900 dark:hover:text-white'
                     }`
                   }
@@ -93,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               {/* Header with close button */}
               <div className="flex items-center justify-between px-6 py-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                     <Package className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -108,6 +158,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </button>
               </div>
 
+              {/* User Info */}
+              {user && (
+                <div className="px-6 pb-4">
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {user.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Navigation */}
               <nav className="flex-1 px-4 pb-4 space-y-1">
                 {navigation.map((item) => (
@@ -118,7 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     className={({ isActive }) =>
                       `group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                         isActive
-                          ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                           : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 hover:text-gray-900 dark:hover:text-white'
                       }`
                     }
